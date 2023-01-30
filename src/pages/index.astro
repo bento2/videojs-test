@@ -1,0 +1,25 @@
+---
+import MySiteLayout from '../layouts/layout.astro';
+import {poster, url} from '../datas/sintel.json';
+const title =  "Test de video JS"
+---
+<MySiteLayout title={title}>  
+	<video
+    id="my-video"
+    class="video-js"
+    controls
+    preload="auto"
+    width="640"
+    height="264"
+    poster={poster}
+    data-setup="{}"
+  >
+    <source src={url} type="application/x-mpegURL"/>    
+    <p class="vjs-no-js">
+      To view this video please enable JavaScript, and consider upgrading to a
+      web browser that
+    </p>
+  </video>
+<link href="//vjs.zencdn.net/7.10.2/video-js.min.css" rel="stylesheet">
+<script is:inline src="//vjs.zencdn.net/7.10.2/video.min.js"></script>
+</MySiteLayout>
