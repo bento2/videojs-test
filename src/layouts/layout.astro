@@ -25,9 +25,10 @@ const { title } = Astro.props
 
 <script>
   const navigation = document.querySelectorAll('nav a');
-  
+  console.log(location.pathname);
 // Handle clicks on each button.
 navigation.forEach((lien) => {
+  console.log(lien.getAttribute("href"));
   if(lien.getAttribute("href")===location.pathname || lien.getAttribute("href")===location.pathname+"/"){
     lien.className+=" active";
   }
