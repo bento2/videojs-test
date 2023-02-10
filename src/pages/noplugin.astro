@@ -14,7 +14,38 @@ var title = "Test de Alchimie player NoPlugin"
             sku: "1:1:1",
             title: "Test sintel",
             src: url,
-            type: "application/x-mpegURL"
+            type: "application/x-mpegURL",
+            keySystems: {
+            'com.apple.fps.1_0': {
+                certificateUri: 'https://fp-keyos.licensekeyserver.com/cert/4878cb06e94dbdec89d1bafe26afa560.der',
+                getContentId: function (emeOptions, initData) {
+                  var contentId = arrayToString(initData);
+                  console.log('!!run getContentId');
+                  if (contentId.indexOf("skd://") > -1)
+                    return contentId.split("skd://")[1].substr(0, 32);
+                  throw 'Invalid Content ID format. The format of the Content ID must be the following: skd://xxx where xxx is the Key ID in hex format.';
+                },
+                getLicense: function (emeOptions, contentId, keyMessage, callback) {
+                  console.log('!!run getLicense');
+                  var data = 'spc=' + base64EncodeUint8Array(keyMessage) + '&assetId=' + contentId;
+                  $.ajax({
+                    url: 'https://fp-keyos.licensekeyserver.com/getkey',
+                    type: 'POST',
+                    data: data,
+                    headers: {
+                      'customdata': cle,
+                    },
+                    contentType: 'application/x-www-form-urlencoded',
+                    success: function (result) {
+                          callback(null, base64DecodeUint8Array(result));
+                    },
+                    error: function (err) {
+                      callback(err);
+                    }
+                  });
+                }
+              }            
+          }
 
         };
         playlist.push(vod);
@@ -46,6 +77,7 @@ var title = "Test de Alchimie player NoPlugin"
           appErrorMessage: "Message erreur",
           
       }
+      
     );
 
     </script>
