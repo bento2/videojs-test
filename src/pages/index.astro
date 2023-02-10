@@ -14,7 +14,7 @@ const title =  "Test de video JS"
     poster={poster}
     data-setup="{}"
   >
-    <source src={url} type="application/x-mpegURL"/>    
+    
     <p class="vjs-no-js">
       To view this video please enable JavaScript, and consider upgrading to a
       web browser that
@@ -22,4 +22,54 @@ const title =  "Test de video JS"
   </video>
 <link href="//vjs.zencdn.net/7.10.2/video-js.min.css" rel="stylesheet">
 <script is:inline src="//vjs.zencdn.net/7.10.2/video.min.js"></script>
+<script is:inline src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script is:inline src="https://s3.amazonaws.com/cdn.keyos.com/html5/videojs-contrib-eme/3.5.4/videojs-contrib-eme.min.js"></script>
+<script is:inline>
+   (function() {
+    var player = videojs('my-video');
+    player.eme();
+    player.on('ready', function() {
+      var base64DecodeUint8Array = function (a) { var b = window.atob(a), c = b.length, d = new Uint8Array(new ArrayBuffer(c)); for (i = 0; i < c; i++)d[i] = b.charCodeAt(i); return d };
+      var base64EncodeUint8Array = function (a) { for (var d, e, f, g, h, i, j, b = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=", c = "", k = 0; k < a.length;)d = a[k++], e = k < a.length ? a[k++] : Number.NaN, f = k < a.length ? a[k++] : Number.NaN, g = d >> 2, h = (3 & d) << 4 | e >> 4, i = (15 & e) << 2 | f >> 6, j = 63 & f, isNaN(e) ? i = j = 64 : isNaN(f) && (j = 64), c += b.charAt(g) + b.charAt(h) + b.charAt(i) + b.charAt(j); return c };
+      var arrayToString = function (a) { var b = new Uint16Array(a.buffer); return String.fromCharCode.apply(null, b) };
+      var fairplayHlsSrc = {
+      src: "https://p-alchimie-services-vod-drm.akamaized.net/cloud/mediachain/687793/multi.ism/master.m3u8?hdnts=exp=1675089771~acl=/cloud/mediachain/687793/multi.ism/*~id=ABj158rCzHUAYh-c~hmac=294ccc70543280d9d1dde37f691d434d7aceccc86c71ad78f0f8730ffadd54d7",
+      type: 'application/x-mpegURL',
+      keySystems: {
+        'com.apple.fps.1_0': {
+            certificateUri: 'https://fp-keyos.licensekeyserver.com/cert/4878cb06e94dbdec89d1bafe26afa560.der',
+            getContentId: function (emeOptions, initData) {
+              var contentId = arrayToString(initData);
+              console.log('!!run getContentId');
+              if (contentId.indexOf("skd://") > -1)
+                return contentId.split("skd://")[1].substr(0, 32);
+              throw 'Invalid Content ID format. The format of the Content ID must be the following: skd://xxx where xxx is the Key ID in hex format.';
+            },
+            getLicense: function (emeOptions, contentId, keyMessage, callback) {
+              console.log('!!run getLicense');
+              var data = 'spc=' + base64EncodeUint8Array(keyMessage) + '&assetId=' + contentId;
+              $.ajax({
+                url: 'https://fp-keyos.licensekeyserver.com/getkey',
+                type: 'POST',
+                data: data,
+                headers: {
+                  'customdata': "PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxLZXlPU0F1dGhlbnRpY2F0aW9uWE1MPjxEYXRhPjxGYWlyUGxheVBvbGljeT48UmVudGFsRXhwaXJhdGlvbkRhdGU+MjAyMy0wMi0wMSAxMzoyNDowMi4wMDA8L1JlbnRhbEV4cGlyYXRpb25EYXRlPjwvRmFpclBsYXlQb2xpY3k+PEtleUlETGlzdD48S2V5SUQ+YjRlMGFiMDEtMmY3NS00NDA5LWIyMjgtMmEyODUwNmU3M2UyPC9LZXlJRD48L0tleUlETGlzdD48R2VuZXJhdGlvblRpbWU+MjAyMy0wMS0zMCAxMDo0Mjo1MS4wMDA8L0dlbmVyYXRpb25UaW1lPjxFeHBpcmF0aW9uVGltZT4yMDIzLTAxLTMwIDE0OjQyOjUxLjAwMDwvRXhwaXJhdGlvblRpbWU+PFVuaXF1ZUlkPjlkOWRhNjFjMmVkYzk5ZTI2ZTFiYzk0MGVhOWI2NjI3PC9VbmlxdWVJZD48UlNBUHViS2V5SWQ+NDg3OGNiMDZlOTRkYmRlYzg5ZDFiYWZlMjZhZmE1NjA8L1JTQVB1YktleUlkPjwvRGF0YT48U2lnbmF0dXJlPnNvbnVIcFJjbDZpMWZDcDFSWFpjWFhlUTZ5K2taMVlSWUJQMUZsZTJmbHJDT2hRQXNhVGtPUkpiSzU1bHAvZUtqdWtONVBlOTVOcUJtd1JLeElVWFQvdTZXWkt2SUFQMTcraWxiVVNSc01MaGVkR0k3ZFJxeUZxbGZLM2NqZ00raDR4akF1SjFFcXpvZVhCR0t1V0k1bkJzQjdZV0wzSnRvQmJTbS8xZ0xUNUdaa0xCRDN6MDVTeVlqWlFyclFiemlma0xIV2hBSmtvMmdZZUVuVkluY0poVEZVY0h1T2Nod0F3elU3aHpJTTYzbUwzYlJUek5RbjJpUEJKQk9MVEdFSFM0czFEMGMvRDJ4SUR2VFkyV0xaQTRpK0RWNklVVzdsTjVLUjJZeTN5MDZaUTlITC9Vam8rb1RGVk50RmRvNSs0djd6WmFJN1g3L0xXbVlIdnRPZz09PC9TaWduYXR1cmU+PC9LZXlPU0F1dGhlbnRpY2F0aW9uWE1MPgo=",
+                },
+                contentType: 'application/x-www-form-urlencoded',
+                success: function (result) {
+                      callback(null, base64DecodeUint8Array(result));
+                },
+                error: function (err) {
+                  callback(err);
+                }
+              });
+            }
+          }
+        }
+      };// Set the source to the player to init/start the playback.
+      player.src(fairplayHlsSrc)
+      window.Player = player
+    });
+   })();
+</script>
 </MySiteLayout>
